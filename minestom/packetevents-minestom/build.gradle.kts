@@ -44,7 +44,9 @@ dependencies {
     compileOnly(libs.minestom)
 
     api(libs.packetevents.api)
-    // PE abstracts buffers as Object but still operates on real Netty ByteBufs.
+    // Stock byte-buffer operators over real Netty ByteBufs; only channel
+    // operations are reimplemented for the fake Minestom channel.
+    api(libs.packetevents.netty.common)
     api(libs.netty.buffer)
 
     testImplementation(libs.minestom)
