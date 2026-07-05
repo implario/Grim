@@ -36,8 +36,12 @@ public final class MinestomPipelineEmulator {
      */
     public static Outcome clientBound(GrimMinestomChannel channel, ByteBuf buffer) {
         User user = channel.user();
-        PacketSendEvent event = EventCreationUtil.createSendEvent(
-                channel, user, channel.player(), buffer, false);
+        PacketSendEvent event;
+        try {
+            event = EventCreationUtil.createSendEvent(channel, user, channel.player(), buffer, false);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create send event", e);
+        }
         PacketEvents.getAPI().getEventManager().callEvent(event, () -> reEncode(event, buffer));
 
         ByteBuf finalBuffer = event.isCancelled() ? null : (ByteBuf) event.getByteBuf();
@@ -54,13 +58,14 @@ public final class MinestomPipelineEmulator {
      */
     public static Outcome serverBound(GrimMinestomChannel channel, ByteBuf buffer) {
         User user = channel.user();
-        PacketReceiveEvent event = EventCreationUtil.createReceiveEvent(
-                channel, user, channel.player(), buffer, false);
+        PacketReceiveEvent event;
+        try {
+            event = EventCreationUtil.createReceiveEvent(channel, user, channel.player(), buffer, false);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create receive event", e);
+        }
         PacketEvents.getAPI().getEventManager().callEvent(event, () -> reEncode(event, buffer));
 
-        if (event.hasPostTasks()) {
-            event.getPostTasks().forEach(Runnable::run);
-        }
         ByteBuf finalBuffer = event.isCancelled() ? null : (ByteBuf) event.getByteBuf();
         return new Outcome(event.isCancelled(), event.needsReEncode(), finalBuffer, null);
     }

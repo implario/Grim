@@ -1,7 +1,6 @@
 package ac.grim.grimac.packetevents.minestom.manager;
 
 import ac.grim.grimac.packetevents.minestom.channel.GrimMinestomChannel;
-import ac.grim.grimac.packetevents.minestom.channel.MinestomChannels;
 import ac.grim.grimac.packetevents.minestom.pipeline.MinestomPipelineEmulator;
 import ac.grim.grimac.packetevents.minestom.util.MinestomPacketConverter;
 import com.github.retrooper.packetevents.manager.protocol.ProtocolManager;
@@ -139,29 +138,5 @@ public class MinestomProtocolManager implements ProtocolManager {
     public ClientVersion getClientVersion(Object channelObject) {
         User user = ((GrimMinestomChannel) channelObject).user();
         return user == null ? ClientVersion.UNKNOWN : user.getClientVersion();
-    }
-
-    @Override
-    public void setClientVersion(Object channelObject, ClientVersion version) {
-        User user = ((GrimMinestomChannel) channelObject).user();
-        if (user != null) {
-            user.setClientVersion(version);
-        }
-    }
-
-    @Override
-    public User getUser(Object channelObject) {
-        return ((GrimMinestomChannel) channelObject).user();
-    }
-
-    @Override
-    public void setUser(Object channelObject, User user) {
-        ((GrimMinestomChannel) channelObject).bindUser(user);
-        USERS.put(channelObject, user);
-    }
-
-    @Override
-    public Object getChannel(String username) {
-        return MinestomChannels.byName(username);
     }
 }

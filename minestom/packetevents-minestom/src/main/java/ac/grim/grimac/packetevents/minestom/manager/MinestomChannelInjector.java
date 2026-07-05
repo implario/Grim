@@ -16,6 +16,11 @@ public class MinestomChannelInjector implements ChannelInjector {
     }
 
     @Override
+    public boolean isProxy() {
+        return false;
+    }
+
+    @Override
     public void inject() {
     }
 
@@ -25,5 +30,14 @@ public class MinestomChannelInjector implements ChannelInjector {
 
     @Override
     public void updateUser(Object channel, User user) {
+    }
+
+    @Override
+    public void setPlayer(Object channel, Object player) {
+    }
+
+    @Override
+    public boolean isPlayerSet(Object channel) {
+        return true;
     }
 }

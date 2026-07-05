@@ -7,14 +7,11 @@ import ac.grim.grimac.packetevents.minestom.manager.MinestomPlayerManager;
 import ac.grim.grimac.packetevents.minestom.manager.MinestomProtocolManager;
 import ac.grim.grimac.packetevents.minestom.manager.MinestomServerManager;
 import com.github.retrooper.packetevents.PacketEventsAPI;
-import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.injector.ChannelInjector;
-import com.github.retrooper.packetevents.manager.InternalPacketListener;
 import com.github.retrooper.packetevents.manager.player.PlayerManager;
 import com.github.retrooper.packetevents.manager.protocol.ProtocolManager;
 import com.github.retrooper.packetevents.manager.server.ServerManager;
 import com.github.retrooper.packetevents.netty.NettyManager;
-import com.github.retrooper.packetevents.settings.PacketEventsSettings;
 
 /**
  * PacketEvents platform implementation for Minestom. There is no Netty
@@ -25,7 +22,6 @@ import com.github.retrooper.packetevents.settings.PacketEventsSettings;
 public class MinestomPacketEventsAPI extends PacketEventsAPI<MinestomPacketEventsConfig> {
 
     private final MinestomPacketEventsConfig config;
-    private final PacketEventsSettings settings = new PacketEventsSettings();
     private final MinestomServerManager serverManager = new MinestomServerManager();
     private final MinestomProtocolManager protocolManager = new MinestomProtocolManager();
     private final MinestomPlayerManager playerManager = new MinestomPlayerManager();
@@ -48,9 +44,10 @@ public class MinestomPacketEventsAPI extends PacketEventsAPI<MinestomPacketEvent
         loaded = true;
         // Resolve (and thereby validate) the protocol mapping eagerly.
         serverManager.getVersion();
-        // PE's internal listener drives connection-state transitions and
-        // registry capture, exactly as on Netty platforms.
-        getEventManager().registerListener(new InternalPacketListener(), PacketListenerPriority.LOWEST);
+        // Base load() warms the block-state/registry tables and registers the
+        // InternalPacketListener that drives connection-state transitions and
+        // registry capture — the same path Netty platforms take.
+        super.load();
         // Minestom listeners can attach before the server starts; doing it in
         // load() keeps the bridge independent of whether init() is called.
         bridge.register(config);
@@ -77,7 +74,7 @@ public class MinestomPacketEventsAPI extends PacketEventsAPI<MinestomPacketEvent
         if (terminated) return;
         terminated = true;
         initialized = false;
-        getEventManager().unregisterAllListeners();
+        super.terminate();
     }
 
     @Override
@@ -113,10 +110,5 @@ public class MinestomPacketEventsAPI extends PacketEventsAPI<MinestomPacketEvent
     @Override
     public ChannelInjector getInjector() {
         return injector;
-    }
-
-    @Override
-    public PacketEventsSettings getSettings() {
-        return settings;
     }
 }
